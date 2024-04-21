@@ -24,12 +24,25 @@ namespace Iridium_Horse_Flute
             var horse = Utility.findHorseForPlayer(who.UniqueMultiplayerID);
             if (WillWarpHorse(horse, who))
             {
-                DelayedAction.functionAfterDelay(() => horse.checkAction(who, location), 1700);
+                DelayedAction.functionAfterDelay(() => tryMountHorse(who, horse, location), 1000);
             }
 
             __result = false;
 
             return false;
+        }
+
+        private static void tryMountHorse(Farmer who, Horse horse, GameLocation location, int retryCount = 15)
+        {
+            if (retryCount < 0) return;
+
+            if (who.FarmerSprite.PauseForSingleAnimation || horse.currentLocation != who.currentLocation)
+            {
+                DelayedAction.functionAfterDelay(() => tryMountHorse(who, horse, location, retryCount-1), 100);
+                return;
+            }
+
+            horse.checkAction(who, location);
         }
 
         private static bool WillWarpHorse(Horse horse, Farmer who)
