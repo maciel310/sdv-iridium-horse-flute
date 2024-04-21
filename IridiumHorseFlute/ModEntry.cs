@@ -21,7 +21,7 @@ namespace IridiumHorseFlute
                 ClassName = "GenericTool",
                 Name = "IridiumHorseFlute",
                 DisplayName = "Iridium Horse Flute",
-                Description = "An upgraded Horse Flute that automatically mounts the horse when summoned.",
+                Description = "Playing this flute will summon your horse and mount it.",
                 SetProperties = new Dictionary<string, string> { { "InstantUse", "true" } },
                 UpgradeFrom = new List<ToolUpgradeData> { 
                     new()
@@ -32,6 +32,7 @@ namespace IridiumHorseFlute
                         TradeItemAmount = 2,
                     }
                 },
+                Texture = helper.ModContent.GetInternalAssetName("assets/iridium-horse-flute.png").BaseName,
             };
             DataLoader.Tools(Game1.content).Add("AnthonyMaciel.IridiumHorseFlute_Flute", data);
 
