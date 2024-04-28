@@ -32,17 +32,18 @@ namespace Iridium_Horse_Flute
             return false;
         }
 
-        private static void tryMountHorse(Farmer who, Horse horse, GameLocation location, int retryCount = 15)
+        private static void tryMountHorse(Farmer who, Horse horse, GameLocation location, int retryCount = 10)
         {
             if (retryCount < 0) return;
 
-            if (who.FarmerSprite.PauseForSingleAnimation || horse.currentLocation != who.currentLocation)
+            if (who.mount != null)
             {
-                DelayedAction.functionAfterDelay(() => tryMountHorse(who, horse, location, retryCount-1), 100);
                 return;
             }
 
             horse.checkAction(who, location);
+
+            DelayedAction.functionAfterDelay(() => tryMountHorse(who, horse, location, retryCount - 1), 200);
         }
 
         private static bool WillWarpHorse(Horse horse, Farmer who)
