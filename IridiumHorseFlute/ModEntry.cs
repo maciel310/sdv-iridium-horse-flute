@@ -16,32 +16,40 @@ namespace IridiumHorseFlute
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
-            ToolData data = new()
-            {
-                ClassName = "GenericTool",
-                Name = "IridiumHorseFlute",
-                DisplayName = "Iridium Horse Flute",
-                Description = "Playing this flute will summon your horse and mount it.",
-                SetProperties = new Dictionary<string, string> { { "InstantUse", "true" } },
-                UpgradeFrom = new List<ToolUpgradeData> { 
-                    new()
-                    {
-                        Price = 1000,
-                        RequireToolId = "(O)911",
-                        TradeItemId = "(O)337",
-                        TradeItemAmount = 2,
-                    }
-                },
-                Texture = helper.ModContent.GetInternalAssetName("assets/iridium-horse-flute.png").BaseName,
-            };
-            DataLoader.Tools(Game1.content).Add("AnthonyMaciel.IridiumHorseFlute_Flute", data);
+            helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
+            
 
             var harmony = new Harmony(this.ModManifest.UniqueID);
             harmony.Patch(
                 original: AccessTools.Method(typeof(Tool), nameof(Tool.beginUsing)),
                 prefix: new HarmonyMethod(typeof(IridiumHorseFluteOverrides), nameof(IridiumHorseFluteOverrides.beginUsing))
             );
-            
+        }
+
+        private void OnGameLaunched(object? sender, EventArgs e)
+        {
+            if (!DataLoader.Tools(Game1.content).ContainsKey("AnthonyMaciel.IridiumHorseFlute_Flute"))
+            {
+                ToolData data = new()
+                {
+                    ClassName = "GenericTool",
+                    Name = "IridiumHorseFlute",
+                    DisplayName = "Iridium Horse Flute",
+                    Description = "Playing this flute will summon your horse and mount it.",
+                    SetProperties = new Dictionary<string, string> { { "InstantUse", "true" } },
+                    UpgradeFrom = new List<ToolUpgradeData> {
+                        new()
+                        {
+                            Price = 1000,
+                            RequireToolId = "(O)911",
+                            TradeItemId = "(O)337",
+                            TradeItemAmount = 2,
+                        }
+                    },
+                    Texture = this.Helper.ModContent.GetInternalAssetName("assets/iridium-horse-flute.png").BaseName,
+                };
+                DataLoader.Tools(Game1.content).Add("AnthonyMaciel.IridiumHorseFlute_Flute", data);
+            }
         }
     }
 }
