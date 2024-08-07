@@ -3,12 +3,16 @@ using StardewValley.GameData.Tools;
 using StardewValley;
 using HarmonyLib;
 using Iridium_Horse_Flute;
+using Microsoft.Xna.Framework.Graphics;
+using StardewModdingAPI.Events;
 
 namespace IridiumHorseFlute
 {
     /// <summary>The mod entry point.</summary>
     internal sealed class ModEntry : Mod
     {
+        private readonly string _toolsSpriteName = "Mods/AnthonyMaciel.IridiumHorseFlute/Tools";
+
         /*********
         ** Public methods
         *********/
@@ -16,8 +20,9 @@ namespace IridiumHorseFlute
         /// <param name="helper">Provides simplified APIs for writing mods.</param>
         public override void Entry(IModHelper helper)
         {
-            helper.Events.GameLoop.GameLaunched += this.OnGameLaunched;
-            
+            helper.Events.Content.AssetRequested += this.Edit;
+
+            helper.GameContent.Load<Texture2D>(_toolsSpriteName);
 
             var harmony = new Harmony(this.ModManifest.UniqueID);
             harmony.Patch(
@@ -26,9 +31,13 @@ namespace IridiumHorseFlute
             );
         }
 
-        private void OnGameLaunched(object? sender, EventArgs e)
+        public void Edit(object sender, AssetRequestedEventArgs args)
         {
-            if (!DataLoader.Tools(Game1.content).ContainsKey("AnthonyMaciel.IridiumHorseFlute_Flute"))
+            if (args.Name.IsEquivalentTo(_toolsSpriteName))
+            {
+                args.LoadFromModFile<Texture2D>("assets/iridium-horse-flute.png", AssetLoadPriority.High);
+            }
+            else if (args.Name.IsEquivalentTo("Data/Tools"))
             {
                 ToolData data = new()
                 {
@@ -46,9 +55,14 @@ namespace IridiumHorseFlute
                             TradeItemAmount = 2,
                         }
                     },
-                    Texture = this.Helper.ModContent.GetInternalAssetName("assets/iridium-horse-flute.png").BaseName,
+                    Texture = _toolsSpriteName,
                 };
-                DataLoader.Tools(Game1.content).Add("AnthonyMaciel.IridiumHorseFlute_Flute", data);
+                args.Edit(asset =>
+                {
+                    var toolDatas = asset.AsDictionary<string, ToolData>().Data;
+
+                    toolDatas["AnthonyMaciel.IridiumHorseFlute_Flute"] = data;
+                });
             }
         }
     }
